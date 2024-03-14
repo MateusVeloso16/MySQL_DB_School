@@ -10,3 +10,41 @@ CREATE TABLE Courses (
     course_level ENUM('Beginner', 'Intermediate', 'Advanced'),
     course_price DECIMAL(10,2)
 );
+
+CREATE TABLE Students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(60),
+    date_of_birth DATE,
+    email VARCHAR(40),
+    phone_number VARCHAR(20),
+    enrollment_date DATETIME
+);
+
+CREATE TABLE Enrollments (
+    enrollment_id INT PRIMARY KEY,
+    student_id INT,
+    course_id INT,
+    enrollment_date DATETIME,
+    completion_status ENUM('Enrolled', 'Completed', 'Withdrawn'),
+    grade DECIMAL(4,2),
+    FOREIGN KEY (student_id) REFERENCES Students(student_id),
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id)
+);
+
+CREATE TABLE Grades (
+    grade_id INT PRIMARY KEY,
+    enrollment_id INT,
+    exam_name VARCHAR(35),
+    exam_date DATE,
+    score DECIMAL(4,2),
+    FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id)
+);
+
+CREATE TABLE Feedback (
+    feedback_id INT PRIMARY KEY,
+    enrollment_id INT,
+    feedback_date DATETIME,
+    feedback_text TEXT,
+    rating INT,
+    FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id)
+);
