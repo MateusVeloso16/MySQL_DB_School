@@ -85,4 +85,15 @@ FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
 ;
 
+ALTER TABLE Courses
+ADD CONSTRAINT CHK_CourseDuration CHECK (course_duration > 0);
+
+ALTER TABLE Enrollments
+ADD CONSTRAINT CHK_GradeRange CHECK (grade >= 0 AND grade <= 100);
+
+ALTER TABLE Enrollments
+ADD CONSTRAINT CHK_CompletionStatus CHECK (completion_status IN ('Enrolled', 'Completed', 'Withdrawn'));
+
+ALTER TABLE Feedback
+ADD CONSTRAINT CHK_RatingRange CHECK (rating >= 1 AND rating <= 5);
 
