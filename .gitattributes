@@ -1,10 +1,12 @@
+DROP database cmsca2;
+
 CREATE database IF NOT EXISTS CMSCA2;
 
 USE CMSCA2;
 
 CREATE TABLE Courses (
-    course_id INT AUTO_INCREMENT PRIMARY KEY,
-    course_name VARCHAR(255),
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(50),
     course_description TEXT,
     course_duration INT,
     course_level ENUM('Beginner', 'Intermediate', 'Advanced'),
@@ -58,3 +60,29 @@ INTO TABLE courses
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
 ;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Students.csv'
+INTO TABLE Students
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\grades.csv'
+INTO TABLE Grades
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Enrollments.csv'
+INTO TABLE Enrollments
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Feedback.csv'
+INTO TABLE Feedback
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+
