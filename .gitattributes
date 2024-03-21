@@ -1,11 +1,11 @@
-DROP database cmsca2;
-
 CREATE database IF NOT EXISTS CMSCA2;
+
 
 USE CMSCA2;
 
+
 CREATE TABLE Courses (
-    course_id INT PRIMARY KEY,
+    course_id INT,
     course_name VARCHAR(50),
     course_description TEXT,
     course_duration INT,
@@ -14,7 +14,7 @@ CREATE TABLE Courses (
 );
 
 CREATE TABLE Students (
-    student_id INT PRIMARY KEY,
+    student_id INT,
     student_name VARCHAR(60),
     date_of_birth DATE,
     email VARCHAR(40),
@@ -23,37 +23,53 @@ CREATE TABLE Students (
 );
 
 CREATE TABLE Enrollments (
-    enrollment_id INT PRIMARY KEY,
+    enrollment_id INT,
     student_id INT,
     course_id INT,
     enrollment_date DATETIME,
     completion_status ENUM('Enrolled', 'Completed', 'Withdrawn'),
-    grade DECIMAL(4,2),
-    FOREIGN KEY (student_id) REFERENCES Students(student_id),
-    FOREIGN KEY (course_id) REFERENCES Courses(course_id)
+    grade DECIMAL(4,2)
 );
 
 CREATE TABLE Grades (
-    grade_id INT PRIMARY KEY,
+    grade_id INT,
     enrollment_id INT,
     exam_name VARCHAR(35),
     exam_date DATE,
-    score DECIMAL(4,2),
-    FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id)
+    score DECIMAL(4,2)
 );
 
 CREATE TABLE Feedback (
-    feedback_id INT PRIMARY KEY,
+    feedback_id INT,
     enrollment_id INT,
     feedback_date DATETIME,
     feedback_text TEXT,
-    rating INT,
-    FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id)
+    rating INT
 );
 
 
-SHOW VARIABLES LIKE 'secure_file_priv';
-SET GLOBAL secure_file_priv = '';
+
+ALTER TABLE Courses
+ADD PRIMARY KEY (course_id);
+
+ALTER TABLE Students
+ADD PRIMARY KEY (student_id);
+
+ALTER TABLE Enrollments
+ADD PRIMARY KEY (enrollment_id),
+ADD FOREIGN KEY (student_id) REFERENCES Students(student_id),
+ADD FOREIGN KEY (course_id) REFERENCES Courses(course_id);
+
+ALTER TABLE Grades
+ADD PRIMARY KEY (grade_id),
+ADD FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id);
+
+ALTER TABLE Feedback
+ADD PRIMARY KEY (feedback_id),
+ADD FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id);
+
+
+
 
 LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Courses.csv'
 INTO TABLE courses
@@ -85,6 +101,8 @@ FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
 ;
 
+
+
 ALTER TABLE Courses
 ADD CONSTRAINT CHK_CourseDuration CHECK (course_duration > 0);
 
@@ -98,16 +116,10 @@ ALTER TABLE Feedback
 ADD CONSTRAINT CHK_RatingRange CHECK (rating >= 1 AND rating <= 5);
 
 
-ALTER TABLE Courses
-ADD CONSTRAINT UQ_CourseName UNIQUE (course_name);
+
 
 ALTER TABLE Students
 ADD CONSTRAINT UQ_StudentEmail UNIQUE (email);
 
-ALTER TABLE Enrollments
-ADD CONSTRAINT UQ_StudentCourse UNIQUE (student_id, course_id);
-
 ALTER TABLE Feedback
 ADD CONSTRAINT UQ_EnrollmentFeedback UNIQUE (enrollment_id, feedback_id);
-
-
