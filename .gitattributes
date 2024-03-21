@@ -123,3 +123,21 @@ ADD CONSTRAINT UQ_StudentEmail UNIQUE (email);
 
 ALTER TABLE Feedback
 ADD CONSTRAINT UQ_EnrollmentFeedback UNIQUE (enrollment_id, feedback_id);
+
+
+
+SELECT *
+FROM Enrollments e
+JOIN Students s ON e.student_id = s.student_id;
+
+SELECT *
+FROM Enrollments e
+JOIN Courses c ON e.course_id = c.course_id;
+
+SELECT *
+FROM Grades g
+JOIN Enrollments e ON g.enrollment_id = e.enrollment_id;
+
+SELECT *
+FROM Feedback f
+JOIN Enrollments e ON f.enrollment_id = e.enrollment_id;
