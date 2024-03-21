@@ -97,3 +97,17 @@ ADD CONSTRAINT CHK_CompletionStatus CHECK (completion_status IN ('Enrolled', 'Co
 ALTER TABLE Feedback
 ADD CONSTRAINT CHK_RatingRange CHECK (rating >= 1 AND rating <= 5);
 
+
+ALTER TABLE Courses
+ADD CONSTRAINT UQ_CourseName UNIQUE (course_name);
+
+ALTER TABLE Students
+ADD CONSTRAINT UQ_StudentEmail UNIQUE (email);
+
+ALTER TABLE Enrollments
+ADD CONSTRAINT UQ_StudentCourse UNIQUE (student_id, course_id);
+
+ALTER TABLE Feedback
+ADD CONSTRAINT UQ_EnrollmentFeedback UNIQUE (enrollment_id, feedback_id);
+
+
