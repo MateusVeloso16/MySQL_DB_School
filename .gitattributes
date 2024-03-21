@@ -126,6 +126,7 @@ ADD CONSTRAINT UQ_EnrollmentFeedback UNIQUE (enrollment_id, feedback_id);
 
 
 
+
 SELECT *
 FROM Enrollments e
 JOIN Students s ON e.student_id = s.student_id;
@@ -141,3 +142,16 @@ JOIN Enrollments e ON g.enrollment_id = e.enrollment_id;
 SELECT *
 FROM Feedback f
 JOIN Enrollments e ON f.enrollment_id = e.enrollment_id;
+
+
+
+SELECT AVG(rating) AS avg_rating
+FROM Feedback;
+
+SELECT exam_name, MAX(score) AS max_score
+FROM Grades
+GROUP BY exam_name;
+
+SELECT course_id, AVG(grade) AS avg_grade
+FROM Enrollments
+GROUP BY course_id;
