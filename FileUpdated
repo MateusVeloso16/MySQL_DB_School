@@ -1,0 +1,205 @@
+CREATE database IF NOT EXISTS CMSCA2; -- Here I ask to create a database named CMSCA2 if it does not already exist.
+
+
+
+USE CMSCA2; -- Here I specifie that the following operations will be performed in the CMSCA2 database.
+
+
+
+
+-- GITHUB Repository:  https://github.com/MateusVeloso16/CMSCA2.git
+
+
+
+-- Creates a table named Courses with specified columns for course details.
+CREATE TABLE Courses (
+    course_id INT,
+    course_name VARCHAR(50),
+    course_description TEXT,
+    course_duration INT,
+    course_level ENUM('Beginner', 'Intermediate', 'Advanced'),
+    course_price DECIMAL(10,2)
+);
+
+
+-- Creates a table named Students with specified columns for student information.
+CREATE TABLE Students (
+    student_id INT,
+    student_name VARCHAR(60),
+    date_of_birth DATE,
+    email VARCHAR(40),
+    phone_number VARCHAR(20),
+    enrollment_date DATETIME
+);
+
+
+-- Creates a table named Enrollments with specified columns for enrollment details.
+CREATE TABLE Enrollments (
+    enrollment_id INT,
+    student_id INT,
+    course_id INT,
+    enrollment_date DATETIME,
+    completion_status ENUM('Enrolled', 'Completed', 'Withdrawn'),
+    grade DECIMAL(4,2)
+);
+
+
+-- Creates a table named Grades with specified columns for grade records.
+CREATE TABLE Grades (
+    grade_id INT,
+    enrollment_id INT,
+    exam_name VARCHAR(35),
+    exam_date DATE,
+    score DECIMAL(4,2)
+);
+
+
+-- Creates a table named Feedback with specified columns for feedback data.
+CREATE TABLE Feedback (
+    feedback_id INT,
+    enrollment_id INT,
+    feedback_date DATETIME,
+    feedback_text TEXT,
+    rating INT
+);
+
+/*I had to populate the tables first and only after that insert the primary and foreign keys because it was not accepting I populate the tables with this.*/
+
+-- I included a primary key constraint to the course_id column in the Courses table.
+ALTER TABLE Courses
+ADD PRIMARY KEY (course_id);
+
+-- I included a primary key constraint to the student_id column in the Students table.
+ALTER TABLE Students
+ADD PRIMARY KEY (student_id);
+
+-- I included a primary key constraint to the enrollment_id column in the Enrollments table.
+-- I included foreign key constraints referencing student_id and course_id in the Enrollments table.
+ALTER TABLE Enrollments
+ADD PRIMARY KEY (enrollment_id),
+ADD FOREIGN KEY (student_id) REFERENCES Students(student_id),
+ADD FOREIGN KEY (course_id) REFERENCES Courses(course_id);
+
+-- I included a primary key constraint to the grade_id column in the Grades table.
+-- I included a foreign key constraint referencing enrollment_id in the Grades table.
+ALTER TABLE Grades
+ADD PRIMARY KEY (grade_id),
+ADD FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id);
+
+-- I included a primary key constraint to the feedback_id column in the Feedback table.
+-- I included a foreign key constraint referencing enrollment_id in the Feedback table.
+ALTER TABLE Feedback
+ADD PRIMARY KEY (feedback_id),
+ADD FOREIGN KEY (enrollment_id) REFERENCES Enrollments(enrollment_id);
+
+
+
+-- Loads data from CSV files into the corresponding tables.
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Courses.csv'
+INTO TABLE courses
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Students.csv'
+INTO TABLE Students
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\grades.csv'
+INTO TABLE Grades
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Enrollments.csv'
+INTO TABLE Enrollments
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+LOAD DATA INFILE 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\Feedback.csv'
+INTO TABLE Feedback
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+;
+
+
+
+ALTER TABLE Courses -- Adds a check constraint to ensure course_duration is greater than 0.
+ADD CONSTRAINT CHK_CourseDuration CHECK (course_duration > 0);
+
+ALTER TABLE Enrollments -- Adds a check constraint to ensure grade is within the range of 0 to 100.
+ADD CONSTRAINT CHK_GradeRange CHECK (grade >= 0 AND grade <= 100);
+
+ALTER TABLE Enrollments -- Adds a check constraint to ensure completion_status is one of 'Enrolled', 'Completed', or 'Withdrawn'.
+ADD CONSTRAINT CHK_CompletionStatus CHECK (completion_status IN ('Enrolled', 'Completed', 'Withdrawn'));
+
+ALTER TABLE Feedback -- Adds a check constraint to ensure rating is within the range of 1 to 5.
+ADD CONSTRAINT CHK_RatingRange CHECK (rating >= 1 AND rating <= 5);
+
+
+
+-- Adds a unique constraint to ensure email addresses in the Students table are unique.
+ALTER TABLE Students
+ADD CONSTRAINT UQ_StudentEmail UNIQUE (email);
+
+-- Adds a unique constraint to ensure enrollment_id and feedback_id combinations are unique in the Feedback table.
+ALTER TABLE Feedback
+ADD CONSTRAINT UQ_EnrollmentFeedback UNIQUE (enrollment_id, feedback_id);
+
+
+
+-- Retrieves data from the Enrollments and Students tables based on the matching student_id values.
+SELECT *
+FROM Enrollments e
+JOIN Students s ON e.student_id = s.student_id;
+
+-- Retrieves data from the Enrollments and Courses tables based on the matching course_id values.
+SELECT *
+FROM Enrollments e
+JOIN Courses c ON e.course_id = c.course_id;
+
+-- Retrieves data from the Grades and Enrollments tables based on the matching enrollment_id values.
+SELECT *
+FROM Grades g
+JOIN Enrollments e ON g.enrollment_id = e.enrollment_id;
+
+-- Retrieves data from the Feedback and Enrollments tables based on the matching enrollment_id values.
+SELECT *
+FROM Feedback f
+JOIN Enrollments e ON f.enrollment_id = e.enrollment_id;
+
+
+-- Calculates the average rating from the Feedback table.
+SELECT AVG(rating) AS avg_rating
+FROM Feedback;
+
+-- Retrieves the maximum score for each exam from the Grades table.
+SELECT exam_name, MAX(score) AS max_score
+FROM Grades
+GROUP BY exam_name;
+
+-- Calculates the average grade for each course from the Enrollments table.
+SELECT course_id, AVG(grade) AS avg_grade
+FROM Enrollments
+GROUP BY course_id;
+
+
+-- Adds a timestamp column to record the last modification time for Courses, Students, Enrollments, Grades, and Feedback tables.
+ALTER TABLE Courses
+ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE Students
+ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE Enrollments
+ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE Grades
+ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE Feedback
+ADD last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
